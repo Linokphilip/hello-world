@@ -30,10 +30,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
 
-          # Path to your built war file
+          # Path to built WAR file
           source: "target/*.war"
 
-          # Temporary upload directory
+          # Temporary folder on EC2
           target: "/home/ec2-user/deploy-temp"
 
           strip_components: 1
@@ -46,5 +46,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
+            sudo systemctl stop tomcat
+            sudo rm -rf /var/lib/tomcat/webapps/ROOT*
             sudo mv /home/ec2-user/deploy-temp/*.war /var/lib/tomcat/webapps/ROOT.war
-            sudo systemctl restart tomcat
+            sudo systemctl start tomcat
