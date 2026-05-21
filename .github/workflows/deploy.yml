@@ -1,4 +1,4 @@
-name: Deploy WAR to EC2
+name: Deploy Java App to Tomcat
 
 on:
   push:
@@ -29,24 +29,16 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
-          # Path to built WAR file
           source: "target/*.war"
-
-          # Temporary folder on EC2
           target: "/home/ec2-user/deploy-temp"
-
           strip_components: 1
 
-      - name: Move to Webapps & Restart
+      - name: Deploy WAR to Tomcat
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
           script: |
-            sudo systemctl stop tomcat
-            sudo rm -rf /var/lib/tomcat/webapps/ROOT*
-            sudo mv /home/ec2-user/deploy-temp/*.war /var/lib/tomcat/webapps/ROOT.war
-            sudo systemctl start tomcat
+            sudo cp /home/ec2-user/deploy-temp/*.war /var/lib/tomcat10/webapps/
+            sudo systemctl restart tomcat10
